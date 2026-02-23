@@ -1,21 +1,20 @@
-# ─── Stage 1: Build ───────────────────────────────────────────────────────────
+# ─── Stage 1: Build ─────────────────────────
 FROM node:20-slim AS builder
 WORKDIR /app
 
 COPY package*.json ./
 
-# Skip Puppeteer's bundled Chrome download during npm install
+# Evita descargar Chromium de Puppeteer durante build
 ENV PUPPETEER_SKIP_DOWNLOAD=true
-RUN npm install
+RUN npm ci
 
 COPY . .
 RUN npm run build
 
-# ─── Stage 2: Runner ──────────────────────────────────────────────────────────
+# ─── Stage 2: Runner ───────────────────────
 FROM node:20-slim AS runner
 WORKDIR /app
 
-# Install system Chromium + required shared libraries for Puppeteer
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -25,9 +24,8 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
-
 ENV PUPPETEER_SKIP_DOWNLOAD=true
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
