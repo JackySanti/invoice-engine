@@ -6,7 +6,7 @@ COPY package*.json ./
 
 # Skip Puppeteer's bundled Chrome download during npm install
 ENV PUPPETEER_SKIP_DOWNLOAD=true
-RUN npm ci
+RUN npm install
 
 COPY . .
 RUN npm run build
@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 COPY package*.json ./
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
